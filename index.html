@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoilGuard+ Dashboard</title>
+    <style>
+        /* CSS: Styling the interface */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2e7d32; /* Green color for SoilGuard+ */
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #555;
+            display: block;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Warning style for values out of range */
+        .warning {
+            border-color: #ff5252 !important;
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .alert-box {
+            min-height: 50px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-box.danger {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .risk-level {
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>SoilGuard+</h1>
+        <div class="status-badge">Data is simulated</div>
+
+        <div class="metrics-grid">
+            <!-- Moisture Card -->
+            <div id="moisture-card" class="metric-card">
+                <span class="metric-label">Moisture</span>
+                <span id="moisture-val" class="metric-value">0%</span>
+            </div>
+
+            <!-- Temperature Card -->
+            <div id="temp-card" class="metric-card">
+                <span class="metric-label">Temp</span>
+                <span id="temp-val" class="metric-value">0°C</span>
+            </div>
+
+            <!-- pH Card -->
+            <div id="ph-card" class="metric-card">
+                <span class="metric-label">Soil pH</span>
+                <span id="ph-val" class="metric-value">7.0</span>
+            </div>
+
+            <!-- Risk Level Card -->
+            <div id="risk-card" class="metric-card">
+                <span class="metric-label">Risk Level</span>
+                <span id="risk-val" class="metric-value risk-level">LOW</span>
+            </div>
+        </div>
+
+        <!-- Alert Message Area -->
+        <div id="alert-msg" class="alert-box">
+            System Normal
+        </div>
+    </div>
+
+    <script>
+        /* JavaScript: Logic for simulation and updates */
+
+        function updateData() {
+            // 1. Generate random fake values
+            // Moisture: 20% to 90%
+            const moisture = (Math.random() * (90 - 20) + 20).toFixed(1);
+            // Temperature: 10°C to 40°C
+            const temp = (Math.random() * (40 - 10) + 10).toFixed(1);
+            // pH: 4.0 to 9.0
+            const ph = (Math.random() * (9 - 4) + 4).toFixed(1);
+
+            // 2. Reference DOM elements
+            const moistureCard = document.getElementById('moisture-card');
+            const tempCard = document.getElementById('temp-card');
+            const phCard = document.getElementById('ph-card');
+            const riskCard = document.getElementById('risk-card');
+            const alertBox = document.getElementById('alert-msg');
+
+            // 3. Logic for safety thresholds
+            let issues = [];
+
+            // Check Moisture (Normal: 40% - 75%)
+            if (moisture < 40 || moisture > 75) {
+                moistureCard.classList.add('warning');
+                issues.push("Soil Moisture Abnormal");
+            } else {
+                moistureCard.classList.remove('warning');
+            }
+
+            // Check Temperature (Normal: 15°C - 32°C)
+            if (temp < 15 || temp > 32) {
+                tempCard.classList.add('warning');
+                issues.push("Temperature Issue");
+            } else {
+                tempCard.classList.remove('warning');
+            }
+
+            // Check pH (Normal: 6.0 - 7.5)
+            if (ph < 6.0 || ph > 7.5) {
+                phCard.classList.add('warning');
+                issues.push("pH Imbalance");
+            } else {
+                phCard.classList.remove('warning');
+            }
+
+            // 4. Update text values in HTML
+            document.getElementById('moisture-val').innerText = moisture + "%";
+            document.getElementById('temp-val').innerText = temp + "°C";
+            document.getElementById('ph-val').innerText = ph;
+
+            // 5. Calculate Risk Level and Alert Message
+            if (issues.length === 0) {
+                document.getElementById('risk-val').innerText = "LOW";
+                riskCard.classList.remove('warning');
+                alertBox.innerText = "All systems optimal";
+                alertBox.classList.remove('danger');
+            } else if (issues.length === 1) {
+                document.getElementById('risk-val').innerText = "MEDIUM";
+                riskCard.classList.add('warning');
+                alertBox.innerText = "Warning: " + issues[0];
+                alertBox.classList.add('danger');
+            } else {
+                document.getElementById('risk-val').innerText = "HIGH";
+                riskCard.classList.add('warning');
+                alertBox.innerText = "CRITICAL: Multiple issues!";
+                alertBox.classList.add('danger');
+            }
+        }
+
+        // Run updateData every 2000 milliseconds (2 seconds)
+        setInterval(updateData, 2000);
+
+        // Run once immediately on load
+        updateData();
+    </script>
+</body>
+</html>
